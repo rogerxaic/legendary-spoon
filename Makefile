@@ -9,8 +9,8 @@ all:
 %.o: %.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
-agence: agence.o
-	$(CC) -o $@ $^ $(CFLAGS)
+agence: agence.o agence.h
+	$(CC) -o $@ $< $(CFLAGS)
 
 user: $(OBJ)
 	gcc -o $@ $^ $(CFLAGS)
@@ -23,3 +23,6 @@ push:
 	git add .
 	git commit -m "$$$$"
 	git push origin master
+
+clean:
+	rm -rf *.o
