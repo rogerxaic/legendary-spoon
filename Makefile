@@ -12,8 +12,8 @@ all:
 agence: agence.o $(DEPS)
 	$(CC) -o $@ $< $(CFLAGS)
 
-user: $(OBJ)
-	gcc -o $@ $^ $(CFLAGS)
+users: users.o $(DEPS)
+	gcc -o $@ $< $(CFLAGS)
 
 
 update:
