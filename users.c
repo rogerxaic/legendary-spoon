@@ -20,13 +20,16 @@ int users(){
   while(1){
     int destination=0;
     int nombrePlaces=0;
-    Message newMessage=0;
+    Message *newMessage;
+    newMessage=(Message*)malloc(sizeof(Message));
+    
 
     fprintf(stdout,"Entrer la destination de vos rêve SVP:\n");
     scanf("%d\n",&destination);
     fprintf(stdout,"Entrer le nombre de places SVP:\n");
     scanf("%d\n",&nombrePlaces);
-        
+    newMessage->destination=destination;
+    newMessage->nombre=nombre;    
   }
 
   return(0);
