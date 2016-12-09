@@ -16,6 +16,7 @@ void replySignal(int sig);
 void stop();
 
 int main(){
+  users();
   return(0);
 }
 
