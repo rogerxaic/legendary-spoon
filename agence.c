@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
+#include "user_agence.h"
 
 void cleanStop(int sig);
 
@@ -10,8 +11,16 @@ int main(int argc, char* argv[]) {
 	signal(SIGQUIT, cleanStop);
 
 	//mutex 100 
+	create_semaphore(100);
+	init_semaphore(100,1);
+
 	//mutex2 150
+	create_semaphore(150);
+	init_semaphore(150,1);
+
 	//db 200
+
+
 	//presence 350
 
 	

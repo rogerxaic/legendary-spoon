@@ -9,7 +9,7 @@ all:
 %.o: %.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
-agence: agence.o agence.h
+agence: agence.o user_agence.h
 	$(CC) -o $@ $< $(CFLAGS)
 
 user: $(OBJ)
