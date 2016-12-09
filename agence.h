@@ -7,7 +7,7 @@
 
 typedef struct StructureMessage{
   int destination;
-  int nombre;
+  int number;
   int pid;
 }Message;
 
