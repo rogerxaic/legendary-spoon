@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <signal.h>
 #include "semaphore.h"
+#include "mqueue.h"
 
 typedef struct StructureMessage{
   int destination;

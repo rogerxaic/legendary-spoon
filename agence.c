@@ -23,6 +23,13 @@ int main(int argc, char* argv[]) {
 
 	//presence 350
 
+	//messagequeue 400
+	create_mqueue(400);
+
+	
+	while(1) {
+	
+	}
 	
 	return 0;
 }
