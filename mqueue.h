@@ -1,13 +1,12 @@
 /*
- * Header: messagequeue.h
+ * Header: mqueue.h
  * 
- * Provides wrapper functions around POSIX system calls shmget, 
- * shmctl, shmat and shmdt allowing the creation, opening
- * and disposal of shared memory segments and connecting to and
- * disconnecting from them.
+ * Provides wrapper functions around POSIX system calls 
+ * allowing the creation, opening
+ * and disposal of message queues
  * 
  * 
- * Copyright 2014 Razmig Kéchichian, INSA de Lyon, TC department
+ * Copyright 2016 Roger Miret, INSA de Lyon, TC department
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -55,7 +54,7 @@ int send_mqueue(int id, int msg, int length) {
 }
 
 int rcv_mqueue(int id, int msg, int length) {
-	return msgrcv(id, msg, length, 1, 0);
+	return msgrcv(id, msg, length, 1, 1);
 }
 
 #endif

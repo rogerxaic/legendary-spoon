@@ -1,6 +1,6 @@
 CC=gcc
 CFLAGS=-Wall
-DEPS = user.h agence.h
+DEPS = user_agence.h mqueue.h semaphore.h shmem.h
 OBJ = user.o agence.o 
 
 all: 
@@ -9,7 +9,7 @@ all:
 %.o: %.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
-agence: agence.o user_agence.h
+agence: agence.o $(DEPS)
 	$(CC) -o $@ $< $(CFLAGS)
 
 user: $(OBJ)
