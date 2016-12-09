@@ -10,3 +10,12 @@ all: user
 
 user: $(OBJ)
 	gcc -o $@ $^ $(CFLAGS)
+
+
+update:
+	git pull origin master
+	
+push:
+	git add .
+	git commit -m "$$$$"
+	git push origin master
