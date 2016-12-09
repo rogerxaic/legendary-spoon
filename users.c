@@ -1,21 +1,25 @@
+#include <sys/types.h>
+#include <sys/ipc.h>
+#include <sys/msg.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <signal.h>
 #include "user_agence.h"
+#include <unistd.h>
 
+int keyMutex2=150;
+int keyPresence=350;
+int keyMqueue=400;
+
+
+void replySignal(int sig);
+void stop();
 
 int main(){
-
-
-
   return(0);
 }
 
 int users(){
-
-  int keyMutex2=150;
-  int keyPresence=350;
-  int keyMqueue=400;
 
   signal(SIGINT,stop);
   signal(SIGHUP,stop);
@@ -40,7 +44,7 @@ int users(){
     newMessage->number=placeNumber;
     newMessage->pid=myPid;
     down(keyMutex2);
-    //deposer le message
+    send_mqueue(400,&newMessage,sizeof(Message));
     pause();
     signal(SIGUSR1,replySignal);
     signal(SIGUSR2,replySignal);
@@ -56,4 +60,13 @@ void replySignal(int sig){
 
   if(sig == SIGUSR2)
     fprintf(stdout,"Probème lors de la réservation");
+}
+
+void stop(){
+  remove_semaphore(keyMutex2);
+  remove_mqueue(keyMqueue);
+  up(keyPresence);
+  remove_semaphore(keyPresence);
+  fprintf(stdout,"Processus Utilisateur arrété");
+  exit(0);
 }
