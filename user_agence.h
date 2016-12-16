@@ -7,10 +7,17 @@
 #include "semaphore.h"
 #include "mqueue.h"
 
+#define MSGSZ 128
+
 typedef struct StructureMessage{
   int destination;
   int number;
   int pid;
 } Message;
+
+typedef struct msgbuf {
+	long mtype;
+	char mtext[MSGSZ];
+} message_buf;
 
 #endif
