@@ -25,19 +25,19 @@ int users(){
   signal(SIGINT,stop);
   signal(SIGHUP,stop);
   signal(SIGQUIT,stop);
-printf("1\n");
+
   open_semaphore(keyMutex2);
   open_semaphore(keyPresence);
   int mq400 = open_mqueue(keyMqueue);
-printf("2\n");
+
   while(1){
-printf("3\n");
+
     int destination=0;
     int placeNumber=0;
     int myPid=getpid();
     Message *newMessage;
     newMessage=(Message*)malloc(sizeof(Message));
-    	printf("4\n");
+
     fprintf(stdout,"Entrer la destination de vos rêve SVP:\n");
     scanf("%d\n",&destination);
     fprintf(stdout,"Entrer le nombre de places SVP:\n");
@@ -45,9 +45,7 @@ printf("3\n");
     newMessage->destination=destination;
     newMessage->number=placeNumber;
     newMessage->pid=myPid;
-	printf("avant\n");
     down(keyMutex2);
-	printf("apres\n");
     send_mqueue(mq400,&newMessage,sizeof(Message));
     pause();
     signal(SIGUSR1,replySignal);
