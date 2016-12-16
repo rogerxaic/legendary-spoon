@@ -5,19 +5,20 @@
 #include <stdlib.h>
 #include <signal.h>
 #include "semaphore.h"
-#include "mqueue.h"
 
-#define MSGSZ 128
+typedef struct flight{
+	int destination;
+	int number;
+} Flight;
 
-typedef struct StructureMessage{
-  int destination;
-  int number;
-  int pid;
+typedef struct message {
+	Flight flight;
+	int pid;
 } Message;
 
 typedef struct msgbuf {
 	long mtype;
-	char mtext[MSGSZ];
+	Message msg;
 } message_buf;
 
 #endif

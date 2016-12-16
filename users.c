@@ -14,6 +14,7 @@ int keyMqueue=400;
 
 void replySignal(int sig);
 void stop();
+int users();
 
 int main(){
   users();
@@ -28,47 +29,68 @@ int users(){
 
   open_semaphore(keyMutex2);
   open_semaphore(keyPresence);
-  int mq400 = open_mqueue(keyMqueue);
+  int mq400;
+
+  int msgflg = IPC_CREAT | 0666;
+  key_t key;
+  Flight flight;
+  Message message;
+  message_buf sbuf;
+
+  key = 400;
+
+  if ((mq400 = msgget(key, msgflg)) < 0 ) {
+    perror("msgget\n");
+    exit(1);
+  }
 
   while(1){
 
     int destination=0;
     int placeNumber=0;
     int myPid=getpid();
-    Message *newMessage;
-    newMessage=(Message*)malloc(sizeof(Message));
 
     fprintf(stdout,"Entrer la destination de vos rêve SVP:\n");
-    scanf("%d\n",&destination);
+    scanf("%d",&destination);
     fprintf(stdout,"Entrer le nombre de places SVP:\n");
-    scanf("%d\n",&placeNumber);
-    newMessage->destination=destination;
-    newMessage->number=placeNumber;
-    newMessage->pid=myPid;
+    scanf("%d",&placeNumber);
+    flight.destination = destination;
+    flight.number = placeNumber;
+
+    message.flight = flight;
+    message.pid = myPid;
+
+    sbuf.mtype = 1;
+    sbuf.msg = message;
+
     down(keyMutex2);
-    send_mqueue(mq400,&newMessage,sizeof(Message));
-    pause();
+    if (msgsnd(mq400, &sbuf, sizeof(sbuf.msg), IPC_NOWAIT) < 0) {
+        perror("msgsnd\n");
+        exit(1);
+    }
+
+    up(keyMutex2);
+
     signal(SIGUSR1,replySignal);
     signal(SIGUSR2,replySignal);
+    pause();
   }
 
   return(0);
-  
 }
 
 void replySignal(int sig){
   if(sig == SIGUSR1)
-    fprintf(stdout,"Réservation confirmée");
+    fprintf(stdout,"Réservation confirmée\n");
 
   if(sig == SIGUSR2)
-    fprintf(stdout,"Probème lors de la réservation");
+    fprintf(stdout,"Probème lors de la réservation\n");
 }
 
 void stop(){
   remove_semaphore(keyMutex2);
-  remove_mqueue(keyMqueue);
   up(keyPresence);
   remove_semaphore(keyPresence);
-  fprintf(stdout,"Processus Utilisateur arrété");
+  fprintf(stdout,"Processus Utilisateur arrété\n");
   exit(0);
 }
