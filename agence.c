@@ -1,8 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <signal.h>
 #include <sys/types.h>
-#include <unistd.h>
+#include <sys/ipc.h>
+#include <sys/msg.h>
 #include "user_agence.h"
 
 void cleanStop(int sig);
@@ -27,29 +29,48 @@ int main(int argc, char* argv[]) {
 
 	//messagequeue 400
 	int mq400;
-	if((mq400=create_mqueue(400))<0) {
+	key_t key;
+	message_buf rbuf;
+
+	key = 400;
+	
+	if((mq400=msgget(key, 0666)) < 0) {
 		perror("[ERROR] ***create mqueue***\n");
 		exit(1);
 	}
 
-	Message msg;
+	Message message;
+	Flight flight;
 	while(1) {
-		rcv_mqueue(mq400, &msg, sizeof(Message));
-		printf("%d\n", (int)sizeof(Message));
+		down(150);
+		if (msgrcv(mq400, &rbuf, sizeof(Message), 1, 0) < 0) {
+			perror("msgrcv");
+			exit(1);
+		}
+		up(150);
+//		rcv_mqueue(mq400, &msg, sizeof(Message));
+//		printf("%d\n", (int)sizeof(Message));
 		//if(msgrcv(mq400, &msg, sizeof(Message), 1, 0) < 0) {
 			//perror("[ERROR] ***msgrcv***\n");
 			//exit(1);
 		//}*/
+		message = rbuf.msg;
+		flight = message.flight;
 		printf("Msg recu\n");
-		printf("msg.pid=%d\n", msg.pid);
+//		printf("msg.text=%s\n", rbuf.mtext);
 
+		
+
+		printf("*** AGENCE *** je fais down\n");
 		down(100);
 			//lecture db
 		if(1) {
-			kill(msg.pid, SIGUSR1);
+			kill(message.pid, SIGUSR1);
+			printf("Destination %d, # places %d\n", flight.destination, flight.number);
 		} else {
-			kill(msg.pid, SIGUSR2);
+			kill(message.pid, SIGUSR2);
 		}
+		printf("*** AGENCE *** je fais up\n");
 		up(100);
 	}
 	
