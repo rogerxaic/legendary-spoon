@@ -6,14 +6,13 @@
 #include <time.h>
 
 int rand_flight(int a, int b){
-//	srand (time(0));
-	return(rand()*(b-a)+a);
+
+	srand(time(NULL));
+	int number = (rand()%(b-a))+a;
+	return number;
 }
 
 int ecrivain();
-//Flight *newflight;
-//newflight = (Flight*)malloc(sizeof(Flight));
-
 
 int tirage(){
 
@@ -21,16 +20,14 @@ int tirage(){
 //	signal(SIGHUP,stopTirage);
 //	signal(SIGQUIT,stopTirage);
 
-Flight newflight;
-//newflight = (Flight*)malloc(sizeof(Flight));
-
+	Flight newflight;
 
 	int pid, descripteur[2], destination, nb_places;
 	int a = 1;
 	int b = 20;
 	int c = 100;
 	int d = 500;
-//int pipe = pipe(descripteur);
+
 	if(pipe(descripteur) < 0){
 		printf("erreur création pipe \n");
 		exit(-1);
@@ -50,10 +47,10 @@ Flight newflight;
 			printf("Je suis Tirage et je tire un vol aléatoire\n");
 			destination = rand_flight(a,b);
 			nb_places = rand_flight(c,d);
-			printf("valeur a%d\n",destination);
-			printf("valeur b %d\n",nb_places);
 			newflight.destination = destination;
 			newflight.number = nb_places;
+			printf("%d \n",newflight.destination);
+			printf("%d \n",newflight.number);
 
 			write(descripteur[1],&newflight,sizeof(Flight));
 			sleep(10);
