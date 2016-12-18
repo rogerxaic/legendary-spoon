@@ -14,11 +14,11 @@ int main(int argc, char* argv[]) {
 	signal(SIGHUP, cleanStop);
 	signal(SIGQUIT, cleanStop);
 
-	//mutex 100 
+	//mutex 100 (AGENCE) <==> (DATABASE)
 	create_semaphore(100);
 	init_semaphore(100,1);
 
-	//mutex2 150
+	//mutex2 150 (USERS) <==> (AGENCE)
 	create_semaphore(150);
 	init_semaphore(150,1);
 
@@ -26,6 +26,7 @@ int main(int argc, char* argv[]) {
 
 
 	//presence 350
+	open_semaphore(350);
 
 	//messagequeue 400
 	int mq400;
@@ -79,17 +80,17 @@ int main(int argc, char* argv[]) {
 
 
 void cleanStop(int sig) {
-	//database detachement
+	//database detachment
 	
 
-	//message queue detachement
+	//message queue detachment
 	
 
 	//presence up
-	
+	up(350);
 
-	//presence detachement
-	
+	//presence detachment
+//	remove_semaphore(350);
 
 	fprintf(stdout, "[AGENCE]\t***Agence process stopped ***\n");
 	exit(0);

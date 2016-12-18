@@ -1,6 +1,6 @@
 CC=gcc
 CFLAGS=-Wall
-DEPS = user_agence.h mqueue.h semaphore.h shmem.h
+DEPS = user_agence.h mqueue.h semaphore.h shmem.h database.h
 OBJ = user.o agence.o 
 
 all: 
@@ -13,8 +13,10 @@ agence: agence.o $(DEPS)
 	$(CC) -o $@ $< $(CFLAGS)
 
 users: users.o $(DEPS)
-	gcc -o $@ $< $(CFLAGS)
+	$(CC) -o $@ $< $(CFLAGS)
 
+display: display.o $(DEPS)
+	$(CC) -o $@ $< $(CFLAGS)
 
 update:
 	git pull origin master
