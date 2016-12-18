@@ -49,9 +49,6 @@ int tirage(){
 			nb_places = rand_flight(c,d);
 			newflight.destination = destination;
 			newflight.number = nb_places;
-			printf("%d \n",newflight.destination);
-			printf("%d \n",newflight.number);
-
 			write(descripteur[1],&newflight,sizeof(Flight));
 			sleep(10);
 		}
@@ -67,7 +64,6 @@ int ecrivain(int descripteur[2]){
 //      signal(SIGHUP,stop);
 //    signal(SIGQUIT,stop);
 Flight newflight;
-//newflight = (Flight*)malloc(sizeof(Flight));
 
 	close(descripteur[1]);
 	while(1){
