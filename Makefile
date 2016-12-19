@@ -23,7 +23,8 @@ update:
 	
 push:
 	git add .
-	git commit -m "$$$$"
+	@read -p "Ajoute un commentaire sur ce que tu as ajouté/modifié:" comment; \
+	git commit -m "$$comment"
 	git push origin master
 
 clean:
