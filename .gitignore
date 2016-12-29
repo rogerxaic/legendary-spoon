@@ -38,5 +38,9 @@
 /build
 /CMakeFiles
 Makefile
-*.cmake
+cmake_install.cmake
+CTestTestfile.cmake
+install_manifest.txt
+compile_commands.json
 CMakeCache.txt
+CMakeScripts
