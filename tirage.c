@@ -8,8 +8,8 @@
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <sys/sem.h>
-#include "semaphore.h"
-#include "shmem.h"
+#include "lib/semaphore.h"
+#include "lib/shmem.h"
 #include "mqueue.h"
 
 int key_mutex = 100;

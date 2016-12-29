@@ -3,7 +3,7 @@
 #include <unistd.h>
 #include <signal.h>
 #include <sys/shm.h>
-#include "semaphore.h"
+#include "lib/semaphore.h"
 #include "database.h"
 
 void cleanStop(int sig);

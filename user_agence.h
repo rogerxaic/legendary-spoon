@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
-#include "semaphore.h"
+#include "lib/semaphore.h"
 
 typedef struct flight{
 	int destination;
