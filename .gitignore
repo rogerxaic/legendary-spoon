@@ -31,3 +31,10 @@
 # Debug files
 *.dSYM/
 *.su
+
+# CMake
+/bin
+/lib
+/build
+/CMakeFiles
+Makefile
