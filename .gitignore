@@ -34,7 +34,6 @@
 
 # CMake
 /bin
-/lib
 /build
 /CMakeFiles
 Makefile
@@ -44,3 +43,6 @@ install_manifest.txt
 compile_commands.json
 CMakeCache.txt
 CMakeScripts
+
+.idea
+cmake-build-debug/
