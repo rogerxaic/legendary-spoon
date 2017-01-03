@@ -17,15 +17,16 @@ int main (int argc, char* argv[]) {
 	open_semaphore(100);
 
 	//db 200
+	key_t db = 200;
 	int db200;
-	FlightEntry *array[20];
+	FlightEntry *array;
 
-	if ((db200 = shmget(200, 20 * sizeof(FlightEntry), IPC_CREAT | 0666)) < 0) {
+	if ((db200 = shmget(db, 20 * sizeof(FlightEntry), IPC_CREAT | 0666)) < 0) {
 		perror("shmget\n");
 		exit(1);
 	}
 
-	if ((array = shmat(db200, NULL, 0)) == (FlightEntry *) -1) {
+	if ((array = shmat(db200, (void *)0, 0)) == (FlightEntry *) (-1)) {
 		perror("shmat\n");
 		exit(1);
 	}
@@ -40,7 +41,9 @@ int main (int argc, char* argv[]) {
 		down(100);
 		int i;
 		for(i=0;i<20;i++){
-			printf("%s\n",*(array+i).name);
+			printf("name: %s\n",(*(array+i)).name);
+            printf("places: %d\n", (*(array+i)).places);
+            printf("*****************\n");
 		}
 		up(100);
 		sleep(10);
