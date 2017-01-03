@@ -111,6 +111,19 @@ depend:
 .PHONY : depend
 
 #=============================================================================
+# Target rules for targets named agence
+
+# Build rule for target.
+agence: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 agence
+.PHONY : agence
+
+# fast build rule for target.
+agence/fast:
+	$(MAKE) -f src/CMakeFiles/agence.dir/build.make src/CMakeFiles/agence.dir/build
+.PHONY : agence/fast
+
+#=============================================================================
 # Target rules for targets named users
 
 # Build rule for target.
@@ -120,35 +133,34 @@ users: cmake_check_build_system
 
 # fast build rule for target.
 users/fast:
-	$(MAKE) -f CMakeFiles/users.dir/build.make CMakeFiles/users.dir/build
+	$(MAKE) -f src/CMakeFiles/users.dir/build.make src/CMakeFiles/users.dir/build
 .PHONY : users/fast
 
-users.o: users.c.o
+#=============================================================================
+# Target rules for targets named tirage
 
-.PHONY : users.o
+# Build rule for target.
+tirage: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 tirage
+.PHONY : tirage
 
-# target to build an object file
-users.c.o:
-	$(MAKE) -f CMakeFiles/users.dir/build.make CMakeFiles/users.dir/users.c.o
-.PHONY : users.c.o
+# fast build rule for target.
+tirage/fast:
+	$(MAKE) -f src/CMakeFiles/tirage.dir/build.make src/CMakeFiles/tirage.dir/build
+.PHONY : tirage/fast
 
-users.i: users.c.i
+#=============================================================================
+# Target rules for targets named launcher
 
-.PHONY : users.i
+# Build rule for target.
+launcher: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 launcher
+.PHONY : launcher
 
-# target to preprocess a source file
-users.c.i:
-	$(MAKE) -f CMakeFiles/users.dir/build.make CMakeFiles/users.dir/users.c.i
-.PHONY : users.c.i
-
-users.s: users.c.s
-
-.PHONY : users.s
-
-# target to generate assembly for a file
-users.c.s:
-	$(MAKE) -f CMakeFiles/users.dir/build.make CMakeFiles/users.dir/users.c.s
-.PHONY : users.c.s
+# fast build rule for target.
+launcher/fast:
+	$(MAKE) -f src/launcher/CMakeFiles/launcher.dir/build.make src/launcher/CMakeFiles/launcher.dir/build
+.PHONY : launcher/fast
 
 # Help Target
 help:
@@ -158,10 +170,10 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
+	@echo "... agence"
 	@echo "... users"
-	@echo "... users.o"
-	@echo "... users.i"
-	@echo "... users.s"
+	@echo "... tirage"
+	@echo "... launcher"
 .PHONY : help
 
 

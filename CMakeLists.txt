@@ -7,4 +7,5 @@ set (Traveller_VERSION_MINOR 0)
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 
-add_executable(users users.c)
+add_subdirectory(src)
+#add_executable(users users.c)
