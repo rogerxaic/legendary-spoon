@@ -107,11 +107,11 @@ int tirage(){
 }
 
 void stopTirage(){
-	//envoie un sigint aux autres processus
+	//envoie un sigint aux autres processus qui sont tous de son groupe
+	kill(0,SIGINT);
 	//attend la mort de son fils
+	wait();
 	down(key_presence);
-	//Est ce qu'il faut fermer le pipe malgré qu'on ferme les accès dans les fcts
-	//Est ce qu'on détruit un pipe ??
 	remove_semaphore(key_mutex);
 	remove_semaphore(key_mutex2);
 	remove_shmem(key_database);
@@ -148,7 +148,6 @@ void stopEcrivain(){
 	remove_semaphore(key_mutex);
 	remove_shmem(key_database);
 	remove_semaphore(key_vols);
-	//même question pour le pipe en lecture
 	up(key_presence);
 	remove_semaphore(key_presence);
 	printf("Processus Ecrivain arrêté\n");
