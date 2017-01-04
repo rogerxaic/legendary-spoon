@@ -1,11 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <signal.h>
-#include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/msg.h>
+#include <sys/shm.h>
 #include "user_agence.h"
+#include "database.h"
 
 void cleanStop(int sig);
 
@@ -23,6 +23,18 @@ int main(int argc, char* argv[]) {
 	init_semaphore(150,1);
 
 	//db 200
+    int db200;
+    FlightEntry *array;
+
+    if ((db200 = shmget(200, 20 * sizeof(FlightEntry), IPC_CREAT | 0666)) < 0) {
+        perror("shmget\n");
+        exit(1);
+    }
+
+    if ((array = shmat(db200, (void *)0, 0)) == (FlightEntry *) (-1)) {
+        perror("shmat\n");
+        exit(1);
+    }
 
 
 	//presence 350

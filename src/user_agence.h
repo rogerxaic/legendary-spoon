@@ -7,7 +7,7 @@
 #include "semaphore.h"
 
 typedef struct flight{
-	int destination;
+	char destination[21];
 	int number;
 } Flight;
 
