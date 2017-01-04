@@ -6,7 +6,10 @@
 #include "semaphore.h"
 #include "database.h"
 
-void cleanStop(int sig);
+FlightEntry *db_200;
+int semid_350;
+
+		void cleanStop(int sig);
 
 int main (int argc, char* argv[]) {
 	signal(SIGINT, cleanStop);
@@ -14,7 +17,7 @@ int main (int argc, char* argv[]) {
 	signal(SIGQUIT, cleanStop);
 
 	//mutex 100 (DISPLAY) <==> (DATABASE)
-	open_semaphore(100);
+	int semid_100 = open_semaphore(100);
 
 	//db 200
 	key_t db = 200;
@@ -30,22 +33,23 @@ int main (int argc, char* argv[]) {
 		perror("shmat\n");
 		exit(1);
 	}
+	db_200 = array;
 
 	//semaphore flight 300
-	open_semaphore(300);
+	int semid_300 = open_semaphore(300);
 
 	//presence 350
-	open_semaphore(350);
+	semid_350 = open_semaphore(350);
 
 	while(1) {
-		down(100);
+		down(semid_100);
 		int i;
 		for(i=0;i<20;i++){
 			printf("name: %s\t",(*(array+i)).name);
             printf("places: %d\n", (*(array+i)).places);
             //
 		}
-		up(100);
+		up(semid_100);
         printf("*****************\n");
 		sleep(10);
 	}
@@ -53,17 +57,12 @@ int main (int argc, char* argv[]) {
 }
 
 void cleanStop(int sig) {
-	//
-	
 
 	//database detachment
-	
+	shmdt(db_200);
 
 	//presence up
-	up(350);
-
-	//presence detachment
-//	remove_semaphore(350);
+	up(semid_350);
 
 	fprintf(stdout, "[DISPLAY] \t*** Display process stopped ***\n");
 	exit(0);

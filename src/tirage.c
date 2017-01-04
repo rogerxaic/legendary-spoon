@@ -17,16 +17,19 @@ int key_presence = 350;
 int key_mqueue = 400;
 int size_shmem = 20 * sizeof(FlightEntry);
 
+int semid_Mutex;
+int semid_Mutex2;
+int shmem_id;
+int semid_vols;
+int semid_presence;
+int mqueue_id;
+FlightEntry *db;
+
 int rand_flight(int a, int b);
-
 int tirage();
-
-void stopTirage();
-
+void stopTirage(int sig);
 int ecrivain(int descripteur[2]);
-
-void stopEcrivain();
-
+void stopEcrivain(int sig);
 char *process(char array[]);
 
 int tirage() {
@@ -41,36 +44,36 @@ int tirage() {
     int placeMax = 500;
 
     //creation et initialisation sémaphore Mutex à 1
-    int semid_Mutex = create_semaphore(key_mutex);
+    semid_Mutex = create_semaphore(key_mutex);
     if (semid_Mutex == -1)
         exit(1);
     init_semaphore(semid_Mutex, 1);
 
     //création et initialisation sémaphore Mutex2 à 1
-    int semid_Mutex2 = create_semaphore(key_mutex2);
+    semid_Mutex2 = create_semaphore(key_mutex2);
     if (semid_Mutex2 == -1)
         exit(1);
     init_semaphore(semid_Mutex2, 1);
 
     //Création de la BD
-    int shmem_id = create_shmem(key_database, size_shmem);
+    shmem_id = create_shmem(key_database, size_shmem);
     if (shmem_id == -1)
         exit(1);
 
     //création et initialisation sémaphore vols à 20
-    int semid_vols = create_semaphore(key_vols);
+    semid_vols = create_semaphore(key_vols);
     if (semid_vols == -1)
         exit(1);
     init_semaphore(semid_vols, 20);
 
     //création et initialisation sémaphore présence à -3
-    int semid_presence = create_semaphore(key_presence);
+    semid_presence = create_semaphore(key_presence);
     if (semid_presence == -1)
         exit(1);
     init_semaphore(semid_presence, -3);
 
     //création de la file de message
-    int mqueue_id = create_mqueue(key_mqueue);
+    mqueue_id = create_mqueue(key_mqueue);
     if (mqueue_id == -1)
         exit(1);
 
@@ -127,20 +130,20 @@ int tirage() {
     }
 }
 
-void stopTirage() {
+void stopTirage(int sig) {
     //envoie un sigint aux autres processus qui sont tous de son groupe
     kill(0, SIGINT);
     //attend la mort de son fils
 
     int status;
     wait(&status);
-    down(key_presence);
-    remove_semaphore(key_mutex);
-    remove_semaphore(key_mutex2);
-    remove_shmem(key_database);
-    remove_semaphore(key_vols);
-    remove_mqueue(key_mqueue);
-    remove_semaphore(key_presence);
+    down(semid_presence);
+    remove_semaphore(semid_Mutex);
+    remove_semaphore(semid_Mutex2);
+    remove_shmem(shmem_id);
+    remove_semaphore(semid_vols);
+    remove_mqueue(mqueue_id);
+    remove_semaphore(semid_presence);
     printf("Processus Tirage arrêté\n");
     exit(0);
 }
@@ -171,6 +174,7 @@ int ecrivain(int descripteur[2]) {
         perror("shmat\n");
         exit(1);
     }
+    db = array;
 
     close(descripteur[1]);
     while (1) {
@@ -187,7 +191,7 @@ int ecrivain(int descripteur[2]) {
             }
         }
         up(key_mutex2);
-        if(put == 0) {
+        if (put == 0) {
             //add flight to wating list
         }
 
@@ -197,12 +201,9 @@ int ecrivain(int descripteur[2]) {
     close(descripteur[0]);
 }
 
-void stopEcrivain() {
-    remove_semaphore(key_mutex);
-    remove_shmem(key_database);
-    remove_semaphore(key_vols);
-    up(key_presence);
-    remove_semaphore(key_presence);
+void stopEcrivain(int sig) {
+    remove_shmem(db);
+    up(semid_presence);
     printf("Processus Ecrivain arrêté\n");
     exit(0);
 }
@@ -222,20 +223,20 @@ int main() {
 char *process(char array[]) {
     char *str = (char *) malloc(sizeof(char) * 21);
 
-    for (size_t i = 0; i < 21; i++) { str[i] = '?'; }
+    for (size_t i = 0; i < 21; i++) { str[i] = ' '; }
     str[20] = '\0';
 
     for (size_t i = 0; i < 20; i++) {
         if (array[i] == '\n') {
             if (array[i - 1] == ' ' || array[i - 1] == ',') {
-                str[i - 1] = '?';
+                str[i - 1] = ' ';
             }
             break;
         } else if (i == 19) {
             if (array[i] == ' ' || array[i] == ',') {
-                str[i] = '?';
+                str[i] = ' ';
                 if (array[i - 1] == ' ' || array[i - 1] == ',') {
-                    str[i - 1] = '?';
+                    str[i - 1] = ' ';
                 }
                 break;
             }
