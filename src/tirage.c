@@ -128,27 +128,27 @@ int tirage() {
 }
 
 void stopTirage() {
-    	//envoie un sigint aux autres processus qui sont tous de son groupe
-    	kill(0, SIGINT);
-    	//attend la mort de son fils
-    	/**
-     	*
-     	* ATTENTION !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-     	* Il faut regler ce wait, il donne un erreur à la compilation s'il n'a pas de paramètres
-     	*
-     	*/
+    //envoie un sigint aux autres processus qui sont tous de son groupe
+    kill(0, SIGINT);
+    //attend la mort de son fils
+    /**
+     *
+     * ATTENTION !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+     * Il faut regler ce wait, il donne un erreur à la compilation s'il n'a pas de paramètres
+     *
+     */
 
-	int status;
-    	wait(&status);
-    	down(key_presence);
-	remove_semaphore(key_mutex);
-	remove_semaphore(key_mutex2);
-	remove_shmem(key_database);
-	remove_semaphore(key_vols);
-	remove_mqueue(key_mqueue);
-	remove_semaphore(key_presence);
-	printf("Processus Tirage arrêté\n");
-	exit(0);
+    int status;
+    wait(&status);
+    down(key_presence);
+    remove_semaphore(key_mutex);
+    remove_semaphore(key_mutex2);
+    remove_shmem(key_database);
+    remove_semaphore(key_vols);
+    remove_mqueue(key_mqueue);
+    remove_semaphore(key_presence);
+    printf("Processus Tirage arrêté\n");
+    exit(0);
 }
 
 int ecrivain(int descripteur[2]) {
@@ -160,13 +160,43 @@ int ecrivain(int descripteur[2]) {
     Flight newflight;
 
     open_semaphore(key_mutex);
-    open_shmem(key_database, size_shmem);
+    //open_shmem(key_database, size_shmem);
     open_semaphore(key_vols);
     open_semaphore(key_presence);
+    //db 200
+    key_t db = 200;
+    int db200;
+    FlightEntry *array;
+
+    if ((db200 = shmget(db, 20 * sizeof(FlightEntry), IPC_CREAT | 0666)) < 0) {
+        perror("shmget\n");
+        exit(1);
+    }
+
+    if ((array = shmat(db200, (void *) 0, 0)) == (FlightEntry *) (-1)) {
+        perror("shmat\n");
+        exit(1);
+    }
 
     close(descripteur[1]);
     while (1) {
         read(descripteur[0], &newflight, sizeof(Flight));
+        int i, put = 0;
+        down(key_mutex2);
+        for (i = 0; i < 20; i++) {
+            if ((array + i)->places == 0) {
+                put = 1;
+                (array + i)->places = newflight.number;
+                strcpy((array + i)->name, newflight.destination);
+                down(key_vols);
+                break;
+            }
+        }
+        up(key_mutex2);
+        if(put == 0) {
+            //add flight to wating list
+        }
+
         printf("La destination est %s\n", newflight.destination);
         printf("Le nombre de place disponible est %d\n", newflight.number);
     }
