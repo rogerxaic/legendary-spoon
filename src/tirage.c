@@ -7,6 +7,7 @@
 #include <string.h>
 #include "shmem.h"
 #include "mqueue.h"
+#include "database.h"
 
 int key_mutex = 100;
 int key_mutex2 = 150;
@@ -14,7 +15,7 @@ int key_database = 200;
 int key_vols = 300;
 int key_presence = 350;
 int key_mqueue = 400;
-int size_shmem = 20;
+int size_shmem = 20 * sizeof(FlightEntry);
 
 int rand_flight(int a, int b);
 
