@@ -46,7 +46,7 @@ int main(int argc, char* argv[]) {
 	message_buf rbuf;
 
 	key = 400;
-	
+
 	if((mq400=msgget(key, 0666)) < 0) {
 		perror("[ERROR] ***create mqueue***\n");
 		exit(1);
@@ -72,7 +72,7 @@ int main(int argc, char* argv[]) {
 		printf("Msg recu\n");
 //		printf("msg.text=%s\n", rbuf.mtext);
 
-		
+
 
 		printf("*** AGENCE *** je fais down\n");
 		down(100);

@@ -128,25 +128,27 @@ int tirage() {
 }
 
 void stopTirage() {
-    //envoie un sigint aux autres processus qui sont tous de son groupe
-    kill(0, SIGINT);
-    //attend la mort de son fils
-    /**
-     *
-     * ATTENTION !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-     * Il faut regler ce wait, il donne un erreur à la compilation s'il n'a pas de paramètres
-     *
-     */
-    //wait();
-    down(key_presence);
-    remove_semaphore(key_mutex);
-    remove_semaphore(key_mutex2);
-    remove_shmem(key_database);
-    remove_semaphore(key_vols);
-    remove_mqueue(key_mqueue);
-    remove_semaphore(key_presence);
-    printf("Processus Tirage arrêté\n");
-    exit(0);
+    	//envoie un sigint aux autres processus qui sont tous de son groupe
+    	kill(0, SIGINT);
+    	//attend la mort de son fils
+    	/**
+     	*
+     	* ATTENTION !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+     	* Il faut regler ce wait, il donne un erreur à la compilation s'il n'a pas de paramètres
+     	*
+     	*/
+
+	int status;
+    	wait(&status);
+    	down(key_presence);
+	remove_semaphore(key_mutex);
+	remove_semaphore(key_mutex2);
+	remove_shmem(key_database);
+	remove_semaphore(key_vols);
+	remove_mqueue(key_mqueue);
+	remove_semaphore(key_presence);
+	printf("Processus Tirage arrêté\n");
+	exit(0);
 }
 
 int ecrivain(int descripteur[2]) {

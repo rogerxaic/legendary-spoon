@@ -46,12 +46,12 @@ int users(){
 
   while(1){
 
-    int destination=0;
+    char destination[21];
     int placeNumber=0;
     int myPid=getpid();
 
     fprintf(stdout,"Entrer la destination de vos rêve SVP:\n");
-    scanf("%d",&destination);
+    scanf("%c",&destination);
     fprintf(stdout,"Entrer le nombre de places SVP:\n");
     scanf("%d",&placeNumber);
     flight.destination = destination;
