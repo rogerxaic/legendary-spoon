@@ -6,6 +6,7 @@
 #include <sys/shm.h>
 #include "user_agence.h"
 #include "database.h"
+#include <string.h>
 
 void cleanStop(int sig);
 
@@ -52,6 +53,7 @@ int main(int argc, char* argv[]) {
 		exit(1);
 	}
 
+	//Agence
 	Message message;
 	Flight flight;
 	while(1) {
@@ -61,30 +63,37 @@ int main(int argc, char* argv[]) {
 			exit(1);
 		}
 		up(150);
-//		rcv_mqueue(mq400, &msg, sizeof(Message));
-//		printf("%d\n", (int)sizeof(Message));
-		//if(msgrcv(mq400, &msg, sizeof(Message), 1, 0) < 0) {
-			//perror("[ERROR] ***msgrcv***\n");
-			//exit(1);
-		//}*/
+
 		message = rbuf.msg;
 		flight = message.flight;
+		int placeNumber = flight.number;
+		char destination[21]="";
+		strcpy(destination,flight.destination);
+
 		printf("Msg recu\n");
-//		printf("msg.text=%s\n", rbuf.mtext);
-
-
 
 		printf("*** AGENCE *** je fais down\n");
 		down(100);
-			//lecture db
-		if(1) {
-			kill(message.pid, SIGUSR1);
-			printf("Destination %s, # places %d\n", flight.destination, flight.number);
-		} else {
-			kill(message.pid, SIGUSR2);
+
+		//lecture db
+		int compteur=0;
+		for(compteur=0; compteur<20;compteur++){
+			if(prefix(destination,(array+compteur)->name)==0){
+				if(((array+compteur)->places)>=placeNumber){
+					((array+compteur)->places)=((array+compteur)->places)-placeNumber;
+					kill(message.pid, SIGUSR1);
+					printf("Destination %s, # places %d\n", destination, placeNumber);
+				}else {
+					kill(message.pid, SIGUSR2);
+					printf("Problème sur le nombre de places");
+				}
+			} else {
+				kill(message.pid, SIGUSR2);
+				printf("Problème pour la destination");
+			}
+			printf("*** AGENCE *** je fais up\n");
+			up(100);
 		}
-		printf("*** AGENCE *** je fais up\n");
-		up(100);
 	}
 
 	return 0;
@@ -105,4 +114,10 @@ void cleanStop(int sig) {
 
 	fprintf(stdout, "[AGENCE]\t***Agence process stopped ***\n");
 	exit(0);
+}
+
+//compare les dest avec ce que l'on rentre, si correspondance retourne 0 sinon 1
+int prefix(const char *pre, const char *str)
+{
+    return strncmp(pre, str, strlen(pre)) == 0;
 }
