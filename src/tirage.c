@@ -131,12 +131,6 @@ void stopTirage() {
     //envoie un sigint aux autres processus qui sont tous de son groupe
     kill(0, SIGINT);
     //attend la mort de son fils
-    /**
-     *
-     * ATTENTION !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-     * Il faut regler ce wait, il donne un erreur à la compilation s'il n'a pas de paramètres
-     *
-     */
 
     int status;
     wait(&status);
