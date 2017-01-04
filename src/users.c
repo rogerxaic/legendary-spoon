@@ -6,6 +6,7 @@
 #include <signal.h>
 #include "user_agence.h"
 #include <unistd.h>
+#include <string.h>
 
 int keyMutex2=150;
 int keyPresence=350;

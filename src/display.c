@@ -41,11 +41,12 @@ int main (int argc, char* argv[]) {
 		down(100);
 		int i;
 		for(i=0;i<20;i++){
-			printf("name: %s\n",(*(array+i)).name);
+			printf("name: %s\t",(*(array+i)).name);
             printf("places: %d\n", (*(array+i)).places);
-            printf("*****************\n");
+            //
 		}
 		up(100);
+        printf("*****************\n");
 		sleep(10);
 	}
 	return 0;
