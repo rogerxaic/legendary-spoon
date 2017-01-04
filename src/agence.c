@@ -79,24 +79,23 @@ int main(int argc, char* argv[]) {
 			//lecture db
 		if(1) {
 			kill(message.pid, SIGUSR1);
-			printf("Destination %d, # places %d\n", flight.destination, flight.number);
+			printf("Destination %s, # places %d\n", flight.destination, flight.number);
 		} else {
 			kill(message.pid, SIGUSR2);
 		}
 		printf("*** AGENCE *** je fais up\n");
 		up(100);
 	}
-	
+
 	return 0;
 }
 
 
 void cleanStop(int sig) {
 	//database detachment
-	
 
 	//message queue detachment
-	
+
 
 	//presence up
 	up(350);

@@ -52,9 +52,7 @@ int users(){
 
 
     fprintf(stdout,"Entrer la destination de vos rêve SVP:\n");
-    // scanf("%c",&destination);
-    fgets(destination, sizeof(destination), stdin);
-    // clean(destination, stdin);
+    scanf("%s",destination);
     fprintf(stdout,"la destination est :%s\n",destination);
     fprintf(stdout,"Entrer le nombre de places SVP:\n");
     scanf("%d",&placeNumber);
