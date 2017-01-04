@@ -23,7 +23,7 @@ int shmem_id;
 int semid_vols;
 int semid_presence;
 int mqueue_id;
-FlightEntry *db;
+FlightEntry *dbp;
 
 int rand_flight(int a, int b);
 int tirage();
@@ -156,7 +156,7 @@ int ecrivain(int descripteur[2]) {
 
     Flight newflight;
 
-    open_semaphore(key_mutex);
+    int semid_mutex2 = open_semaphore(key_mutex2);
     //open_shmem(key_database, size_shmem);
     open_semaphore(key_vols);
     open_semaphore(key_presence);
@@ -174,13 +174,13 @@ int ecrivain(int descripteur[2]) {
         perror("shmat\n");
         exit(1);
     }
-    db = array;
+    dbp = array;
 
     close(descripteur[1]);
     while (1) {
         read(descripteur[0], &newflight, sizeof(Flight));
         int i, put = 0;
-        down(key_mutex2);
+        down(semid_mutex2);
         for (i = 0; i < 20; i++) {
             if ((array + i)->places == 0) {
                 put = 1;
@@ -190,7 +190,7 @@ int ecrivain(int descripteur[2]) {
                 break;
             }
         }
-        up(key_mutex2);
+        up(semid_mutex2);
         if (put == 0) {
             //add flight to wating list
         }
@@ -202,7 +202,7 @@ int ecrivain(int descripteur[2]) {
 }
 
 void stopEcrivain(int sig) {
-    remove_shmem(db);
+    remove_shmem(dbp);
     up(semid_presence);
     printf("Processus Ecrivain arrêté\n");
     exit(0);

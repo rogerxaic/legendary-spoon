@@ -15,7 +15,6 @@ int makeChild(char *__command) {
     } else if (pid == -1) { //error
         return -1;
     } else { //parent
-        sleep(2);
         return pid;
     }
 }
@@ -27,9 +26,8 @@ int main(int argc, char* argv[]) {
     printf("--------------------\n");
 
     makeChild("./tirage");
-    makeChild("./display");
+    sleep(2);
     makeChild("./agence");
-
-    system("./users");
+    system("./display");
     return 0;
 }
