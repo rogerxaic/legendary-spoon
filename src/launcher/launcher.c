@@ -4,10 +4,7 @@
 
 void helloFork(char *__command) {
     printf("[%s]\tLaunching (PID=%d)...\n",__command, getpid());
-    for (int i = 0; i < 20; ++i) {
-        sleep(1);
-        printf("[%s]\t%2d\n", __command,i);
-    }
+    system(__command);
 }
 
 int makeChild(char *__command) {
@@ -18,7 +15,7 @@ int makeChild(char *__command) {
     } else if (pid == -1) { //error
         return -1;
     } else { //parent
-        sleep(1);
+        sleep(2);
         return pid;
     }
 }
@@ -29,10 +26,10 @@ int main(int argc, char* argv[]) {
     printf("PARENT PID %d\n", getpid());
     printf("--------------------\n");
 
-    makeChild("tirage");
-    makeChild("display");
-    makeChild("agence");
+    makeChild("./tirage");
+    makeChild("./display");
+    makeChild("./agence");
 
-    //system("users");
+    system("./users");
     return 0;
 }
