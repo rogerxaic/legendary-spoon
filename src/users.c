@@ -46,15 +46,19 @@ int users(){
 
   while(1){
 
-    char destination[21];
+    char destination[21]="";
     int placeNumber=0;
     int myPid=getpid();
 
+
     fprintf(stdout,"Entrer la destination de vos rêve SVP:\n");
-    scanf("%c",&destination);
+    // scanf("%c",&destination);
+    fgets(destination, sizeof(destination), stdin);
+    // clean(destination, stdin);
+    fprintf(stdout,"la destination est :%s\n",destination);
     fprintf(stdout,"Entrer le nombre de places SVP:\n");
     scanf("%d",&placeNumber);
-    flight.destination = destination;
+    strcpy(flight.destination, destination);
     flight.number = placeNumber;
 
     message.flight = flight;
@@ -94,3 +98,15 @@ void stop(){
   fprintf(stdout,"Processus Utilisateur arrété\n");
   exit(0);
 }
+
+/*void clean(const char *buffer, FILE *fp)
+{
+    char *p = strchr(buffer,'\n');
+    if (p != NULL)
+        *p = 0;
+    else
+    {
+        int c;
+        while ((c = fgetc(fp)) != '\n' && c != EOF);
+    }
+}*/
