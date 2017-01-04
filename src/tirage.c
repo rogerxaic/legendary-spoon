@@ -58,7 +58,7 @@ int tirage() {
         exit(1);
 
     //création et initialisation sémaphore vols à 20
-    int semid_vols = create_semaphore(key_presence);
+    int semid_vols = create_semaphore(key_vols);
     if (semid_vols == -1)
         exit(1);
     init_semaphore(semid_vols, 20);
