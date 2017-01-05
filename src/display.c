@@ -6,7 +6,7 @@
 #include <string.h>
 #include "semaphore.h"
 #include "database.h"
-#include <curses.h>
+
 
 FlightEntry *db_200;
 int semid_350;

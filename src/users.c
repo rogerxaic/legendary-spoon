@@ -8,11 +8,9 @@
 #include <unistd.h>
 #include <string.h>
 
-int keyMutex2 = 150;
 int keyPresence = 350;
 int keyMqueue = 400;
 int semid_presence;
-int semid_mutex2;
 
 void replySignal(int sig);
 void stop(int sig);
@@ -29,7 +27,6 @@ int users() {
     signal(SIGHUP, stop);
     signal(SIGQUIT, stop);
 
-    semid_mutex2 = open_semaphore(keyMutex2);
     semid_presence = open_semaphore(keyPresence);
     int mq400;
 
@@ -65,13 +62,10 @@ int users() {
         sbuf.mtype = 1;
         sbuf.msg = message;
 
-        down(semid_mutex2);
         if (msgsnd(mq400, &sbuf, sizeof(sbuf.msg), IPC_NOWAIT) < 0) {
             perror("msgsnd\n");
             exit(1);
         }
-
-        up(semid_mutex2);
 
         signal(SIGUSR1, replySignal);
         signal(SIGUSR2, replySignal);
@@ -94,15 +88,3 @@ void stop(int sig) {
     fprintf(stdout, "Processus Utilisateur arrété\n");
     exit(0);
 }
-
-/*void clean(const char *buffer, FILE *fp)
-{
-    char *p = strchr(buffer,'\n');
-    if (p != NULL)
-        *p = 0;
-    else
-    {
-        int c;
-        while ((c = fgetc(fp)) != '\n' && c != EOF);
-    }
-}*/
