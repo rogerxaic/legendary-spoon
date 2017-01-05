@@ -156,7 +156,7 @@ int ecrivain(int descripteur[2]) {
 
     Flight newflight;
 
-    int semid_mutex2 = open_semaphore(key_mutex2);
+    int semid_mutex = open_semaphore(key_mutex);
     //open_shmem(key_database, size_shmem);
     open_semaphore(key_vols);
     open_semaphore(key_presence);
@@ -180,17 +180,21 @@ int ecrivain(int descripteur[2]) {
     while (1) {
         read(descripteur[0], &newflight, sizeof(Flight));
         int i, put = 0;
-        down(semid_mutex2);
+        printf("[ECRIVAIN] down (MUTEX2)\n");
+        down(semid_mutex);
         for (i = 0; i < 20; i++) {
             if ((array + i)->places == 0) {
                 put = 1;
+                printf("[ECRIVAIN] There's enough room in the DB\n");
                 (array + i)->places = newflight.number;
                 strcpy((array + i)->name, newflight.destination);
                 down(key_vols);
                 break;
             }
         }
-        up(semid_mutex2);
+
+        printf("[ECRIVAIN] up (MUTEX2)\n");
+        up(semid_mutex);
         if (put == 0) {
             //add flight to wating list
         }
