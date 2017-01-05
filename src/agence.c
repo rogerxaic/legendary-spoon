@@ -79,7 +79,7 @@ int main(int argc, char* argv[]) {
 		//lecture db
 		int compteur=0;
 		for(compteur=0; compteur<20;compteur++){
-			if(prefix(destination,(array+compteur)->name)==0){
+			if(prefix(destination,(array+compteur)->name)){
 				if(((array+compteur)->places)>=placeNumber){
 					((array+compteur)->places)=((array+compteur)->places)-placeNumber;
 					kill(message.pid, SIGUSR1);
@@ -117,8 +117,8 @@ void cleanStop(int sig) {
 	exit(0);
 }
 
-//compare les dest avec ce que l'on rentre, si correspondance retourne 0 sinon 1
-int prefix(const char *pre, const char *str)
-{
-    return strncmp(pre, str, strlen(pre)) == 0;
-}
+//compare les dest avec ce que l'on rentre, si correspondance retourne 1 sinon 0
+	int prefix(const char *pre, const char *str)
+	{
+		return strncmp(pre, str, strlen(pre)) == 0;
+	}
