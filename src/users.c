@@ -15,7 +15,7 @@ int semid_presence;
 int semid_mutex2;
 
 void replySignal(int sig);
-void stop();
+void stop(int sig);
 int users();
 
 int main() {
@@ -89,7 +89,7 @@ void replySignal(int sig) {
         fprintf(stdout, "Probème lors de la réservation\n");
 }
 
-void stop() {
+void stop(int sig) {
     up(semid_presence);
     fprintf(stdout, "Processus Utilisateur arrété\n");
     exit(0);
