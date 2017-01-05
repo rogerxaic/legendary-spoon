@@ -7,7 +7,7 @@ typedef struct flight{
 	struct flight *suivant;
 } Flight;
 
-typedef Flight *LISTE
+typedef Flight *LISTE;
 
 void affiche(LISTE liste){
 	if(liste==NULL) return;
@@ -39,8 +39,4 @@ void detruitListe(LISTE root){
 	if(root == NULL) return;
 	detruitListe(root->suivant);
 	free(root);
-}
-
-int main(){
-
 }
