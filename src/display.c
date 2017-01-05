@@ -6,6 +6,7 @@
 #include <string.h>
 #include "semaphore.h"
 #include "database.h"
+#include <curses.h>
 
 FlightEntry *db_200;
 int semid_350;
@@ -49,9 +50,12 @@ int main(int argc, char *argv[]) {
             if ((array + i)->places != 0) {
                 printf("name: %s\t", (*(array + i)).name);
                 printf("places: %d\n", (*(array + i)).places);
-
             } else { //emptying the empty flight
                 strcpy((array+i)->name, "");
+                if(i!=19) {
+                    strcpy((array+i)->name, (array+i+1)->name);
+                    (array+i)->places = (array+i+1)->places;
+                }
             }
             //
         }

@@ -9,6 +9,7 @@
 #include <string.h>
 
 void cleanStop(int sig);
+int prefix(const char *pre, const char *str);
 
 int main(int argc, char* argv[]) {
 	signal(SIGINT, cleanStop);
@@ -16,12 +17,12 @@ int main(int argc, char* argv[]) {
 	signal(SIGQUIT, cleanStop);
 
 	//mutex 100 (AGENCE) <==> (DATABASE)
-	create_semaphore(100);
-	init_semaphore(100,1);
+	int semid_mutex = create_semaphore(100);
+	init_semaphore(semid_mutex,1);
 
 	//mutex2 150 (USERS) <==> (AGENCE)
-	create_semaphore(150);
-	init_semaphore(150,1);
+	int semid_mutex2 = create_semaphore(150);
+	init_semaphore(semid_mutex2,1);
 
 	//db 200
     int db200;
@@ -39,7 +40,7 @@ int main(int argc, char* argv[]) {
 
 
 	//presence 350
-	open_semaphore(350);
+	int semid_presence = open_semaphore(350);
 
 	//messagequeue 400
 	int mq400;
@@ -57,12 +58,12 @@ int main(int argc, char* argv[]) {
 	Message message;
 	Flight flight;
 	while(1) {
-		down(150);
+		down(semid_mutex2);
 		if (msgrcv(mq400, &rbuf, sizeof(Message), 1, 0) < 0) {
 			perror("msgrcv");
 			exit(1);
 		}
-		up(150);
+		up(semid_mutex2);
 
 		message = rbuf.msg;
 		flight = message.flight;
@@ -73,12 +74,12 @@ int main(int argc, char* argv[]) {
 		printf("Msg recu\n");
 
 		printf("*** AGENCE *** je fais down\n");
-		down(100);
+		down(semid_mutex);
 
 		//lecture db
 		int compteur=0;
 		for(compteur=0; compteur<20;compteur++){
-			if(prefix(destination,(array+compteur)->name)==0){
+			if(prefix(destination,(array+compteur)->name)){
 				if(((array+compteur)->places)>=placeNumber){
 					((array+compteur)->places)=((array+compteur)->places)-placeNumber;
 					kill(message.pid, SIGUSR1);
@@ -92,7 +93,7 @@ int main(int argc, char* argv[]) {
 				printf("Problème pour la destination");
 			}
 			printf("*** AGENCE *** je fais up\n");
-			up(100);
+			up(semid_mutex);
 		}
 	}
 
@@ -116,8 +117,8 @@ void cleanStop(int sig) {
 	exit(0);
 }
 
-//compare les dest avec ce que l'on rentre, si correspondance retourne 0 sinon 1
-int prefix(const char *pre, const char *str)
-{
-    return strncmp(pre, str, strlen(pre)) == 0;
-}
+//compare les dest avec ce que l'on rentre, si correspondance retourne 1 sinon 0
+	int prefix(const char *pre, const char *str)
+	{
+		return strncmp(pre, str, strlen(pre)) == 0;
+	}
