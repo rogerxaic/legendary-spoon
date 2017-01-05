@@ -5,9 +5,9 @@ typedef struct flight{
         char destination[21];
         int number;
 	struct flight *suivant;
-} Flight;
+}Vol;
 
-typedef Flight *LISTE;
+typedef Vol *LISTE;
 
 void affiche(LISTE liste){
 	if(liste==NULL) return;
@@ -17,11 +17,11 @@ void affiche(LISTE liste){
 }
 
 
-void insererListe(LISTE* root, struct Flight){
+void insererListe(LISTE* root, Flight v){
 	LISTE newListe;
-	newListe=(LISTE) malloc(sizeof(Flight));
-	newListe->destination=Flight->destination;
-	newListe->number=Flight->number
+	newListe=(LISTE) malloc(sizeof(Vol));
+	strcpy(newListe->destination,v.destination);
+	newListe->number=v.number;
 	newListe->suivant=NULL;
 	if(*root == NULL){
 		*root=newListe;
@@ -33,6 +33,12 @@ void insererListe(LISTE* root, struct Flight){
 	cur->suivant = newListe;
 	}
 	return;
+}
+LISTE enleverListe(LISTE *root){
+	LISTE cur=*root;
+	root=root->suivant;
+
+	return cur;
 }
 
 void detruitListe(LISTE root){

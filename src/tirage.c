@@ -8,6 +8,7 @@
 #include "shmem.h"
 #include "mqueue.h"
 #include "database.h"
+#include "listeChaine.h"
 
 int key_mutex = 100;
 int key_mutex2 = 150;
@@ -155,6 +156,7 @@ int ecrivain(int descripteur[2]) {
     signal(SIGQUIT, stopEcrivain);
 
     Flight newflight;
+    LISTE newlist;
 
     int semid_mutex = open_semaphore(key_mutex);
     //open_shmem(key_database, size_shmem);
@@ -180,19 +182,21 @@ int ecrivain(int descripteur[2]) {
     while (1) {
         read(descripteur[0], &newflight, sizeof(Flight));
         int i, put = 0;
+	insererListe(newlist,newflight);
         printf("[ECRIVAIN] down (MUTEX2)\n");
         down(semid_mutex);
-        for (i = 0; i < 20; i++) {
-            if ((array + i)->places == 0) {
-                put = 1;
-                printf("[ECRIVAIN] There's enough room in the DB\n");
-                (array + i)->places = newflight.number;
-                strcpy((array + i)->name, newflight.destination);
-                down(key_vols);
-                break;
-            }
-        }
-
+	if(newlist != NULL){
+        	for (i = 0; i < 20; i++) {
+            		if ((array + i)->places == 0) {
+                	put = 1;
+                	printf("[ECRIVAIN] There's enough room in the DB\n");
+                	(array + i)->places = newflight.number;
+                	strcpy((array + i)->name, newflight.destination);
+                	down(key_vols);
+                	break;
+            		}
+        	}
+	}
         printf("[ECRIVAIN] up (MUTEX2)\n");
         up(semid_mutex);
         if (put == 0) {
