@@ -1,0 +1,40 @@
+CC=gcc
+CFLAGS=-Wall
+
+all: dirs launcher agence users tirage display launcher receiver
+	@mkdir -p build
+	@mkdir -p obj
+
+launcher.o:
+	$(CC) -c -o obj/$@ src/launcher/launcher.c $(CFLAGS)
+
+agence: src/agence.c
+	$(CC) -o build/$@ $< -I./lib $(CFLAGS)
+
+users: src/users.c
+	$(CC) -o build/$@ $< -I./lib $(CFLAGS)
+
+tirage: src/tirage.c
+	$(CC) -o build/$@ $< -I./lib $(CFLAGS)
+
+display: src/display.c
+	$(CC) -o build/$@ $< -I./lib $(CFLAGS)
+
+receiver: src/receiver.c
+	$(CC) -o build/$@ $< -I./lib $(CFLAGS)
+
+launcher: src/launcher/launcher.c
+	$(CC) -o build/$@ $< -I./lib $(CFLAGS)
+
+run: all
+	cd build; clear; ./launcher
+
+user: all
+	cd build; clear; ./users
+
+dirs:
+	@mkdir -p build
+	@mkdir -p obj
+
+clean:
+	@rm -rf obj
