@@ -123,6 +123,7 @@ int tirage() {
     }
     if (pid == 0) { //child
         ecrivain(descripteur);
+        exit(0);
     } else {  //parents
         FILE *p = fopen("../data/destinations.txt", "r");
         int lineCount = 0;
@@ -159,6 +160,7 @@ int tirage() {
         }
         close(descripteur[1]);
     }
+    return 0;
 }
 
 void stopTirage(int sig) {
