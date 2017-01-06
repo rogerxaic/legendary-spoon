@@ -5,8 +5,8 @@
 #include "user_agence.h"
 #include <time.h>
 #include <string.h>
+#include <sys/msg.h>
 #include "shmem.h"
-#include "mqueue.h"
 #include "database.h"
 #include "listeChaine.h"
 #include "messages.h"
@@ -88,12 +88,12 @@ int tirage() {
     init_semaphore(semid_presence, -2);
 
     //création de la file de message (USER) <--> (AGENCE)
-    mqueue_id = create_mqueue(key_mqueue);
+    mqueue_id = msgget(key_mqueue, IPC_CREAT | 0666);
     if (mqueue_id == -1)
         exit(1);
 
     //création de la file de messages (DISPLAY)
-    message_id = create_mqueue(key_messages);
+    message_id = msgget(key_messages, IPC_CREAT | 0666);
     if (message_id == -1)
         exit(1);
 
@@ -176,8 +176,8 @@ void stopTirage(int sig) {
     remove_shmem(shmem_id);
     remove_shmem(messages_id);
     remove_semaphore(semid_vols);
-    remove_mqueue(mqueue_id);
-    remove_mqueue(message_id);
+    msgctl(mqueue_id, IPC_RMID, 0);
+    msgctl(message_id, IPC_RMID, 0);
     remove_semaphore(semid_presence);
     printf("[TIRAGE] Processus arrêté\n");
     exit(0);
