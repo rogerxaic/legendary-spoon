@@ -2,8 +2,6 @@ CC=gcc
 CFLAGS=-Wall
 
 all: dirs launcher agence users tirage display launcher receiver
-	@mkdir -p build
-	@mkdir -p obj
 
 launcher.o:
 	$(CC) -c -o obj/$@ src/launcher/launcher.c $(CFLAGS)

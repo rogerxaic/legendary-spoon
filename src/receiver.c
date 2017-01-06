@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
-#include <sys/ipc.h>
 #include <sys/shm.h>
 #include <sys/msg.h>
 #include <string.h>
@@ -9,7 +8,7 @@
 #include "messages.h"
 
 int messages_id;
-MessageEntry *messages;
+char messages[MESSAGES][SIZE];
 
 void cleanStop(int sig) {
     shmdt(messages);
@@ -34,23 +33,9 @@ int main() {
         exit(1);
     }
 
-    //messages 500
-    key_t messages_key = 500;
-    if ((messages_id = shmget(messages_key, MESSAGES * sizeof(MessageEntry), IPC_CREAT | 0666)) < 0) {
-        perror("[RECEIVER][ERROR] shmget\n");
-        exit(1);
-    }
-    if ((messages = shmat(messages_id, (void *) 0, 0)) == (MessageEntry *) (-1)) {
-        perror("[RECEIVER][ERROR] shmat\n");
-        exit(1);
-    }
-
-    down(semid_550);
     for (int i = 0; i < MESSAGES; i++) {
-        strcpy((messages + i)->message, "");
+        strcpy(messages[i], "");
     }
-    up(semid_550);
-
 
     while (1) {
 
@@ -58,23 +43,18 @@ int main() {
             perror("msgrcv\n");
             exit(1);
         }
-        //printf("coucou2\n");
-
-        //printf("[RECEIVER] %s\n", rbuf.msg);
 
         down(semid_550);
-        //addMessage(rbuf.msg);
 
         printf("\033[25;0H\n");
         for (int i = 0; i < MESSAGES - 1; i++) {
-            strcpy((messages + i)->message, (messages + i + 1)->message);
-            //strcpy((messages +i)->message, "haha");
+            strcpy((messages + i), (messages + i + 1));
         }
-        strcpy((messages + MESSAGES - 1)->message, rbuf.msg);
+        strcpy((messages + MESSAGES - 1), rbuf.msg);
 
 
         for (int i = 0; i < MESSAGES; i++) {
-            printf("%s\033[K\n", (messages + i)->message);
+            printf("%s\033[K\n", (messages + i));
         }
 
         up(semid_550);
