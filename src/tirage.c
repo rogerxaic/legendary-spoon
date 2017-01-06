@@ -9,6 +9,7 @@
 #include "mqueue.h"
 #include "database.h"
 #include "listeChaine.h"
+#include "messages.h"
 
 int key_mutex = 100;
 int key_mutex2 = 150;
@@ -16,6 +17,9 @@ int key_database = 200;
 int key_vols = 300;
 int key_presence = 350;
 int key_mqueue = 400;
+int key_messages = 450;
+int key_db = 500;
+int key_mutex3 = 550;
 int size_shmem = 20 * sizeof(FlightEntry);
 
 int semid_Mutex;
@@ -24,14 +28,24 @@ int shmem_id;
 int semid_vols;
 int semid_presence;
 int mqueue_id;
+int message_id;
+int messages_id;
+int semid_Mutex3;
 FlightEntry *dbp;
 
 int rand_flight(int a, int b);
+
 int tirage();
+
 void stopTirage(int sig);
+
 int ecrivain(int descripteur[2]);
+
 void stopEcrivain(int sig);
+
 char *process(char array[]);
+
+void sendMessage(char *message);
 
 int tirage() {
     signal(SIGINT, stopTirage);
@@ -71,11 +85,27 @@ int tirage() {
     semid_presence = create_semaphore(key_presence);
     if (semid_presence == -1)
         exit(1);
-    init_semaphore(semid_presence, -3);
+    init_semaphore(semid_presence, -2);
 
-    //création de la file de message
+    //création de la file de message (USER) <--> (AGENCE)
     mqueue_id = create_mqueue(key_mqueue);
     if (mqueue_id == -1)
+        exit(1);
+
+    //création de la file de messages (DISPLAY)
+    message_id = create_mqueue(key_messages);
+    if (message_id == -1)
+        exit(1);
+
+    //création et initialisation sémaphore Mutex3 à 1
+    semid_Mutex3 = create_semaphore(key_mutex3);
+    if (semid_Mutex3 == -1)
+        exit(1);
+    init_semaphore(semid_Mutex3, 1);
+
+    //Création de la BD messages
+    messages_id = create_shmem(key_db, MESSAGES*sizeof(MessageEntry));
+    if (shmem_id == -1)
         exit(1);
 
     /*création du pipe avec prise en compte erreur création ou erreur fork
@@ -84,12 +114,12 @@ int tirage() {
      puis attend 10 secondes et recommence */
 
     if (pipe(descripteur) < 0) {
-        printf("erreur création pipe \n");
+        printf("[TIRAGE] erreur création pipe \n");
         exit(-1);
     }
 
     if ((pid = fork()) < 0) {
-        printf("fork failed\n");
+        printf("[TIRAGE] fork failed\n");
         return -1;
     }
     if (pid == 0) { //child
@@ -109,7 +139,8 @@ int tirage() {
         close(descripteur[0]);
         while (1) {
 
-            printf("Je suis Tirage et je tire un vol aléatoire\n");
+            //printf("[TIRAGE] je tire un vol aléatoire\n");
+            sendMessage("[TIRAGE] Tirage d'un vol aléatoire");
             destination = rand_flight(1, lineCount);
             int count = 0;
             p = fopen("../data/destinations.txt", "r");
@@ -141,11 +172,14 @@ void stopTirage(int sig) {
     down(semid_presence);
     remove_semaphore(semid_Mutex);
     remove_semaphore(semid_Mutex2);
+    remove_semaphore(semid_Mutex3);
     remove_shmem(shmem_id);
+    remove_shmem(messages_id);
     remove_semaphore(semid_vols);
     remove_mqueue(mqueue_id);
+    remove_mqueue(message_id);
     remove_semaphore(semid_presence);
-    printf("Processus Tirage arrêté\n");
+    printf("[TIRAGE] Processus arrêté\n");
     exit(0);
 }
 
@@ -156,7 +190,7 @@ int ecrivain(int descripteur[2]) {
     signal(SIGQUIT, stopEcrivain);
 
     Flight newflight;
-    LISTE newlist;
+    LISTE newlist = NULL;
 
     int semid_mutex = open_semaphore(key_mutex);
     //open_shmem(key_database, size_shmem);
@@ -178,41 +212,46 @@ int ecrivain(int descripteur[2]) {
     }
     dbp = array;
 
+    MessageOut messageOut;
+
     close(descripteur[1]);
     while (1) {
         read(descripteur[0], &newflight, sizeof(Flight));
         int i, put = 0;
-	insererListe(newlist,newflight);
-        printf("[ECRIVAIN] down (MUTEX2)\n");
+        insererListe(&newlist, newflight);
+        //printf("[ECRIVAIN] down (MUTEX2)\n");
+        //sendMessage("[ECRIVAIN] down (MUTEX2)");
         down(semid_mutex);
-	if(newlist != NULL){
-        	for (i = 0; i < 20; i++) {
-            		if ((array + i)->places == 0) {
-                	put = 1;
-                	printf("[ECRIVAIN] There's enough room in the DB\n");
-                	(array + i)->places = newflight.number;
-                	strcpy((array + i)->name, newflight.destination);
-                	down(key_vols);
-                	break;
-            		}
-        	}
-	}
-        printf("[ECRIVAIN] up (MUTEX2)\n");
+        if (newlist != NULL) {
+            for (i = 0; i < 20; i++) {
+                if ((array + i)->places == 0) {
+                    put = 1;
+                    //printf("[ECRIVAIN] There's enough room in the DB\n");
+                    sendMessage("[ECRIVAIN] Il y a de la place dans la DB");
+                    LISTE node = enleverListe(&newlist);
+                    (array + i)->places = node->number;
+                    strcpy((array + i)->name, node->destination);
+                    down(key_vols);
+                    break;
+                }
+            }
+        }
         up(semid_mutex);
         if (put == 0) {
-            //add flight to wating list
+            sendMessage("[ECRIVAIN] Pas de place dans la DB");
         }
+        char str[100];
 
-        printf("La destination est %s\n", newflight.destination);
-        printf("Le nombre de place disponible est %d\n", newflight.number);
+        sprintf(str, "[ECRIVAIN] La destination est %s (places disponibles %d)", newflight.destination, newflight.number);
+        sendMessage(str);
     }
     close(descripteur[0]);
 }
 
 void stopEcrivain(int sig) {
-    remove_shmem(dbp);
+    remove_shmem(shmem_id);
     up(semid_presence);
-    printf("Processus Ecrivain arrêté\n");
+    printf("[ECRIVAIN] Processus arrêté\n");
     exit(0);
 }
 
@@ -253,4 +292,14 @@ char *process(char array[]) {
     }
 
     return str;
+}
+
+void sendMessage(char *message) {
+    MessageOut mout;
+    mout.mtype = 1;
+    strcpy(mout.msg, message);
+    if (msgsnd(message_id, &mout, sizeof(mout.msg), IPC_NOWAIT) < 0) {
+        perror("msgsnd\n");
+        exit(1);
+    }
 }

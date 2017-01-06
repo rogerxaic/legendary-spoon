@@ -6,11 +6,26 @@
 #include <sys/shm.h>
 #include "user_agence.h"
 #include "database.h"
+#include "messages.h"
 #include <string.h>
+
+int message_id;
+int semid_presence;
+FlightEntry *db;
 
 void cleanStop(int sig);
 
 int prefix(const char *pre, const char *str);
+
+void sendMessage(char *message) {
+    MessageOut mout;
+    mout.mtype = 1;
+    strcpy(mout.msg, message);
+    if (msgsnd(message_id, &mout, sizeof(mout.msg), IPC_NOWAIT) < 0) {
+        perror("msgsnd\n");
+        exit(1);
+    }
+}
 
 int main(int argc, char *argv[]) {
     signal(SIGINT, cleanStop);
@@ -34,10 +49,11 @@ int main(int argc, char *argv[]) {
         perror("shmat\n");
         exit(1);
     }
+    db = array;
 
 
     //presence 350
-    int semid_presence = open_semaphore(350);
+    semid_presence = open_semaphore(350);
 
     //messagequeue 400
     int mq400;
@@ -50,6 +66,8 @@ int main(int argc, char *argv[]) {
         perror("[AGENCE][ERROR] ***create mqueue***\n");
         exit(1);
     }
+
+    message_id = msgget(450, IPC_CREAT|0666);
 
     //Agence
     Message message;
@@ -66,9 +84,6 @@ int main(int argc, char *argv[]) {
         char destination[21] = "";
         strcpy(destination, flight.destination);
 
-        printf("Msg recu\n");
-
-        printf("[AGENCE] je fais down\n");
         down(semid_mutex);
 
         //lecture db
@@ -79,22 +94,22 @@ int main(int argc, char *argv[]) {
                 if (((array + compteur)->places) >= placeNumber) {
                     ((array + compteur)->places) = ((array + compteur)->places) - placeNumber;
                     kill(message.pid, SIGUSR1);
-                    printf("Destination %s, # places %d\n", destination, placeNumber);
+                    char str[100];
+                    sprintf(str, "[AGENCE] Destination %s, # places %d", destination, placeNumber);
+                    sendMessage(str);
                     break;
                 } else {
                     kill(message.pid, SIGUSR2);
-                    printf("[AGENCE] Problème sur le nombre de places\n");
+                    sendMessage("[AGENCE] Problème sur le nombre de places");
                     break;
                 }
             }
         }
 
-        if(!found) {
+        if (!found) {
             kill(message.pid, SIGUSR2);
-            printf("[AGENCE] Problème pour la destination\n");
+            sendMessage("[AGENCE] Problème pour la destination");
         }
-
-        printf("[AGENCE] je fais up\n");
         up(semid_mutex);
     }
 
@@ -104,17 +119,12 @@ int main(int argc, char *argv[]) {
 
 void cleanStop(int sig) {
     //database detachment
-
-    //message queue detachment
-
+    shmdt(db);
 
     //presence up
-    up(350);
+    up(semid_presence);
 
-    //presence detachment
-//	remove_semaphore(350);
-
-    fprintf(stdout, "[AGENCE]\t***Agence process stopped ***\n");
+    fprintf(stdout, "[AGENCE] Processus arrêté\n");
     exit(0);
 }
 

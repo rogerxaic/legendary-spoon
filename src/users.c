@@ -8,12 +8,12 @@
 #include <unistd.h>
 #include <string.h>
 
-int keyPresence = 350;
 int keyMqueue = 400;
-int semid_presence;
 
 void replySignal(int sig);
+
 void stop(int sig);
+
 int users();
 
 int main() {
@@ -27,7 +27,6 @@ int users() {
     signal(SIGHUP, stop);
     signal(SIGQUIT, stop);
 
-    semid_presence = open_semaphore(keyPresence);
     int mq400;
 
     int msgflg = IPC_CREAT | 0666;
@@ -50,7 +49,7 @@ int users() {
 
         fprintf(stdout, "Entrer la destination de vos rêve SVP:\n");
         scanf("%s", destination);
-        fprintf(stdout, "la destination est :%s\n", destination);
+        fprintf(stdout, "la destination est : %s\n", destination);
         fprintf(stdout, "Entrer le nombre de places SVP:\n");
         scanf("%d", &placeNumber);
         strcpy(flight.destination, destination);
@@ -84,7 +83,6 @@ void replySignal(int sig) {
 }
 
 void stop(int sig) {
-    up(semid_presence);
     fprintf(stdout, "Processus Utilisateur arrété\n");
     exit(0);
 }
