@@ -209,7 +209,6 @@ int ecrivain(int descripteur[2]) {
         perror("shmat\n");
         exit(1);
     }
-    dbp = array;
 
     close(descripteur[1]);
     while (1) {
