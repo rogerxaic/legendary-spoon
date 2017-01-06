@@ -26,7 +26,7 @@ int main(int argc, char* argv[]) {
     printf("--------------------\n");
 
     makeChild("./tirage");
-    sleep(2);
+    sleep(1);
     makeChild("./receiver");
     makeChild("./agence");
     system("./display");

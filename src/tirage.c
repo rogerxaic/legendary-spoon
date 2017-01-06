@@ -103,7 +103,7 @@ int tirage() {
     init_semaphore(semid_Mutex3, 1);
 
     //Création de la BD messages
-    messages_id = create_shmem(key_db, MESSAGES*sizeof(MessageEntry));
+    messages_id = create_shmem(key_db, MESSAGES * sizeof(MessageEntry));
     if (shmem_id == -1)
         exit(1);
 
@@ -139,7 +139,6 @@ int tirage() {
         close(descripteur[0]);
         while (1) {
 
-            //printf("[TIRAGE] je tire un vol aléatoire\n");
             sendMessage("[TIRAGE] Tirage d'un vol aléatoire");
             destination = rand_flight(1, lineCount);
             int count = 0;
@@ -166,8 +165,8 @@ int tirage() {
 void stopTirage(int sig) {
     //envoie un sigint aux autres processus qui sont tous de son groupe
     kill(0, SIGINT);
-    //attend la mort de son fils
 
+    //attend la mort de son fils
     int status;
     wait(&status);
     down(semid_presence);
@@ -194,10 +193,8 @@ int ecrivain(int descripteur[2]) {
     LISTE newlist = NULL;
 
     int semid_mutex = open_semaphore(key_mutex);
-    //open_shmem(key_database, size_shmem);
-    open_semaphore(key_vols);
     open_semaphore(key_presence);
-    //db 200
+    //db 200 ; where all the Flight data will be stored to be shared between the processes of the project
     key_t db = 200;
     int db200;
     FlightEntry *array;
@@ -214,17 +211,18 @@ int ecrivain(int descripteur[2]) {
 
     close(descripteur[1]);
     while (1) {
+        // receiving new flight data through a pipe
         read(descripteur[0], &newflight, sizeof(Flight));
         int i, put = 0;
+
+        // adding the received data to a waiting list
         insererListe(&newlist, newflight);
-        //printf("[ECRIVAIN] down (MUTEX2)\n");
-        //sendMessage("[ECRIVAIN] down (MUTEX2)");
+
         down(semid_mutex);
-        if (newlist != NULL) {
+        if (newlist != NULL) { // there are Flights in the waiting list to be included in the DB
             for (i = 0; i < 20; i++) {
                 if ((array + i)->places == 0) {
                     put = 1;
-                    //printf("[ECRIVAIN] There's enough room in the DB\n");
                     sendMessage("[ECRIVAIN] Il y a de la place dans la DB");
                     LISTE node = enleverListe(&newlist);
                     (array + i)->places = node->number;
@@ -240,7 +238,8 @@ int ecrivain(int descripteur[2]) {
         }
         char str[100];
 
-        sprintf(str, "[ECRIVAIN] La destination est %s (places disponibles %d)", newflight.destination, newflight.number);
+        sprintf(str, "[ECRIVAIN] La destination est %s (places disponibles %d)", newflight.destination,
+                newflight.number);
         sendMessage(str);
     }
     close(descripteur[0]);
@@ -253,8 +252,13 @@ void stopEcrivain(int sig) {
     exit(0);
 }
 
+/**
+ * Outputs a random number between a and b
+ * @param a
+ * @param b
+ * @return
+ */
 int rand_flight(int a, int b) {
-
     srand((unsigned int) time(NULL));
     int number = (rand() % (b - a)) + a;
     return number;
@@ -265,6 +269,12 @@ int main() {
     return 0;
 }
 
+/**
+ * Cuts a line to 20 characters, filling the end of the line with a space character if the
+ * input line is shorter than 20.
+ * @param array the input line
+ * @return
+ */
 char *process(char array[]) {
     char *str = (char *) malloc(sizeof(char) * 21);
 
@@ -292,6 +302,11 @@ char *process(char array[]) {
     return str;
 }
 
+
+/**
+ * Sends a message through the message queue to the receiver to print it properly
+ * @param message
+ */
 void sendMessage(char *message) {
     MessageOut mout;
     mout.mtype = 1;

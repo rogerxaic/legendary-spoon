@@ -7,11 +7,9 @@
 #include <string.h>
 #include "semaphore.h"
 #include "database.h"
-#include "messages.h"
 
 
 FlightEntry *db_200;
-MessageEntry *messages;
 int semid_350;
 int messages_id;
 
@@ -31,7 +29,6 @@ int main(int argc, char *argv[]) {
     key_t db = 200;
     int db200;
     FlightEntry *array;
-    MessageEntry *messages_db;
 
     if ((db200 = shmget(db, 20 * sizeof(FlightEntry), IPC_CREAT | 0666)) < 0) {
         perror("shmget\n");
@@ -43,15 +40,6 @@ int main(int argc, char *argv[]) {
     }
     db_200 = array;
 
-    if ((messages_id = shmget(db, 20 * sizeof(FlightEntry), IPC_CREAT | 0666)) < 0) {
-        perror("shmget\n");
-        exit(1);
-    }
-    if ((messages_db = shmat(messages_id, (void *) 0, 0)) == (MessageEntry *) (-1)) {
-        perror("shmat\n");
-        exit(1);
-    }
-    messages = messages_db;
 
     //presence 350
     semid_350 = open_semaphore(350);
@@ -101,8 +89,6 @@ void cleanStop(int sig) {
     //database detachment
     shmdt(db_200);
 
-    //messages detachment
-    shmdt(messages);
 
     //presence up
     up(semid_350);

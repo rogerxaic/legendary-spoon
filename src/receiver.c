@@ -16,6 +16,11 @@ void cleanStop(int sig) {
     exit(0);
 }
 
+/**
+ * Receives messages through a message queue and prints them to the screen
+ * when it has the rights to do so (mutex).
+ * @return
+ */
 int main() {
     signal(SIGINT, cleanStop);
     signal(SIGHUP, cleanStop);

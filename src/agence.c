@@ -57,22 +57,21 @@ int main(int argc, char *argv[]) {
 
     //messagequeue 400
     int mq400;
-    key_t key;
+    key_t key = 400;
     message_buf rbuf;
-
-    key = 400;
 
     if ((mq400 = msgget(key, 0666)) < 0) {
         perror("[AGENCE][ERROR] ***create mqueue***\n");
         exit(1);
     }
 
-    message_id = msgget(450, IPC_CREAT|0666);
+    message_id = msgget(450, IPC_CREAT | 0666);
 
     //Agence
     Message message;
     Flight flight;
     while (1) {
+        // receiveing queries from users through a message queue
         if (msgrcv(mq400, &rbuf, sizeof(Message), 1, 0) < 0) {
             perror("msgrcv\n");
             exit(1);
@@ -84,9 +83,8 @@ int main(int argc, char *argv[]) {
         char destination[21] = "";
         strcpy(destination, flight.destination);
 
+        // looking up in the database if the entered destination is available
         down(semid_mutex);
-
-        //lecture db
         int compteur = 0, found = 0;
         for (compteur = 0; compteur < 20; compteur++) {
             if (prefix(destination, (array + compteur)->name)) {
@@ -128,7 +126,12 @@ void cleanStop(int sig) {
     exit(0);
 }
 
-//compare les dest avec ce que l'on rentre, si correspondance retourne 1 sinon 0
+/**
+ * Check if str begins with pre
+ * @param pre
+ * @param str
+ * @return 1 if it does, 0 otherwise
+ */
 int prefix(const char *pre, const char *str) {
     return strncmp(pre, str, strlen(pre)) == 0;
 }
