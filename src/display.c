@@ -53,9 +53,6 @@ int main(int argc, char *argv[]) {
     }
     messages = messages_db;
 
-    //semaphore flight 300
-    int semid_300 = open_semaphore(300);
-
     //presence 350
     semid_350 = open_semaphore(350);
 

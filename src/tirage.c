@@ -31,7 +31,6 @@ int mqueue_id;
 int message_id;
 int messages_id;
 int semid_Mutex3;
-FlightEntry *dbp;
 
 int rand_flight(int a, int b);
 
@@ -211,8 +210,6 @@ int ecrivain(int descripteur[2]) {
         exit(1);
     }
     dbp = array;
-
-    MessageOut messageOut;
 
     close(descripteur[1]);
     while (1) {
